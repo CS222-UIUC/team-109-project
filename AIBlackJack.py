@@ -1,9 +1,13 @@
 import random
 
 class BlackjackBot:
-    def __init__(self, simulation_threshold=0.5):
+    def __init__(self, simulation_threshold=0.5, epsilon=0.1, alpha=0.1):
         #initialization
         self.simulation_threshold = simulation_threshold
+        self.epsilon = epsilon
+        self.alpha = alpha
+        self.q_table = {}
+        self.round_history = []
 
     def get_card_value(self, card):
         """
@@ -73,6 +77,37 @@ class BlackjackBot:
         # Debug output
         print(f"Simulated bust probability for current total {current_total}: {bust_probability:.2f}")
         return bust_probability
+    
+    def choose_action(self, state, hand):
+        """
+        chooses an action using an epsilon-greedy policy.
+        if the state is new (no Q-values yet), it falls back to the simulation-based decision: if bust probability is lower than the threshold, choose hit, if not, stand.
+        """
+        # Check if Q-values exist for this state.
+        if ((state, "hit") not in self.q_table) and ((state, "stand") not in self.q_table):
+            bust_probability = self.simulate_bust_probability(hand)
+            if bust_probability < self.simulation_threshold:
+                self.q_table[(state, "hit")] = 1 - bust_probability
+                self.q_table[(state, "stand")] = 0
+                decision = "hit"
+            else:
+                self.q_table[(state, "hit")] = 0
+                self.q_table[(state, "stand")] = 1 - bust_probability
+                decision = "stand"
+            print(f"New state {state}: using simulation baseline, decision: {decision}")
+            return decision
+
+        # Epsilon-greedy exploration.
+        if random.random() < self.epsilon:
+            decision = random.choice(["hit", "stand"])
+            print(f"Exploration: randomly chosen decision: {decision}")
+            return decision
+        else:
+            q_hit = self.q_table.get((state, "hit"), 0)
+            q_stand = self.q_table.get((state, "stand"), 0)
+            decision = "hit" if q_hit > q_stand else "stand" if q_stand > q_hit else random.choice(["hit", "stand"])
+            print(f"Exploitation: state {state} Q-values: hit={q_hit:.2f}, stand={q_stand:.2f}, decision: {decision}")
+            return decision
 
     def decide_action(self, hand):
         """
@@ -80,33 +115,45 @@ class BlackjackBot:
         it uses a Monte Carlo-like simulation to estimate the chance of busting if it hits.
         if the bust probability is lower than the simulation_threshold, the bot chooses to hit; otherwise, it stands.
         """
-        current_total = self.calculate_hand_value(hand)
+        state = self.calculate_hand_value(hand)
         
-        if current_total >= 21:
+        if state >= 21:
             decision = "stand"
-            print(f"Current total is {current_total}, so decision is: {decision}")
+            print(f"Hand value {state} is terminal. Decision: {decision}")
             return decision
-        
-        # Estimate bust probability for one more card
-        bust_probability = self.simulate_bust_probability(hand)
-        
-        if bust_probability < self.simulation_threshold:
-            decision = "hit"
-        else:
-            decision = "stand"
-        
-        print(f"Current hand value: {current_total}")
-        print(f"Decision based on simulation: {decision}")
+
+        decision = self.choose_action(state, hand)
+        self.round_history.append((state, decision))
+        print(f"State: {state}, decision recorded: {decision}")
         return decision
 
+    def update_memory(self, reward):
+        """
+        updates the Q-table for each (state, action) pair taken during the round.
+        uses a simple update rule:
+            Q(s, a) = Q(s, a) + alpha * (reward - Q(s, a))
+        then clears the round history for the next round.
+        """
+        print(f"Updating memory with reward: {reward}")
+        for state, action in self.round_history:
+            old_value = self.q_table.get((state, action), 0)
+            new_value = old_value + self.alpha * (reward - old_value)
+            self.q_table[(state, action)] = new_value
+            print(f"Updated Q({state}, {action}): {old_value:.2f} -> {new_value:.2f}")
+        self.round_history.clear()
 
 if __name__ == "__main__":
-    # Simulated hand: list of cards represented as dictionaries.
+    # simulated hand: list of cards represented as dictionaries.
     sample_hand = [
         {"rank": "10", "suit": "Hearts"},
         {"rank": "6", "suit": "Diamonds"}
     ]
 
-    bot = BlackjackBot(simulation_threshold=0.5)
+    bot = BlackjackBot(simulation_threshold=0.5, epsilon=0.2, alpha=0.1)
     action = bot.decide_action(sample_hand)
     print(f"Bot recommends: {action}")
+
+    # simulate end of round
+    # eg, assume the round ended with a win (+1 reward).
+    final_reward = 1
+    bot.update_memory(final_reward)
