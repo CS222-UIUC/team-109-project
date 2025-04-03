@@ -104,7 +104,7 @@ void BlackJack::playGame() {
     reset();
     dealInitialCards();
 
-    std::cout << "Dealer shows: " << dealerHand[0].Value_Card() << " | ?" << std::endl;
+    std::cout << "Dealer show: " << dealerHand[0].Value_Card() << " | ?" << std::endl;
     playerTurn();
 
     if (!isBust(playerHand)) {
