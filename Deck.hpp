@@ -1,5 +1,6 @@
-#indef DECK_HPP
+#ifndef DECK_HPP
 #define DECK_HPP
+
 
 #include	 <iostream>
 #include <vector>
@@ -12,10 +13,10 @@ class Deck {
 			std::string rank;
 			std::string suit;
 			//Joker use depends on game. for Blackjack most version don't, but few do
-			bool isJoker
+			bool isJoker;
 
 			//constructor for non-joker playing cards
-			Card(std::string r, std:string s);
+			Card(std::string r, std::string s);
 			//constructor for joker 
 			Card();
 			//return card value as string
@@ -45,5 +46,4 @@ class Deck {
 	};
 
 #endif
-
 
