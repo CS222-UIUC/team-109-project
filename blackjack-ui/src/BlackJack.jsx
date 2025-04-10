@@ -1,57 +1,200 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; 
 
 const BlackJack = () => {
     const [playerHand, setPlayerHand] = useState([]);
     const [dealerHand, setDealerHand] = useState([]);
-    const [deck, setDeck] = useState([]);
-    const [gameState, setGameState] = useState("waiting");
+    const [gameState, setGameState] = useState("waiting"); 
+    const [message, setMessage] = useState("Click Start Game to begin!"); // User feedback
+    const [aiSuggestion, setAiSuggestion] = useState(''); 
+
+    // Input: array of card objects 
+    // Output: string like "K Hearts, 10 Spades"
+    const formatHand = (hand) => {
+        if (!hand || hand.length === 0) {
+            return "(empty)";
+        }
+        // dealer's hidden card
+        if (gameState === 'playing' && hand === dealerHand && hand.length > 0) {
+             const firstCard = hand[0];
+             const firstCardStr = firstCard && firstCard.rank && firstCard.suit 
+                                  ? `${firstCard.rank} ${firstCard.suit}` 
+                                  : "(Card Error)";
+             return `${firstCardStr}, (Hidden)`;
+        }
+        
+        return hand.map(card => 
+            (card && card.rank && card.suit) ? `${card.rank} ${card.suit}` : '(Card Error)' 
+        ).join(", ");
+    };
+
+    // API interaction
+    const BASE_URL = "http://localhost:5000";
+    const AI_BOT_URL = "http://localhost:5001";
 
     const startGame = async () => {
-        const response = await fetch("http://localhost:5000/start");
-        const data = await response.json();
-        setPlayerHand(data.player);
-        setDealerHand(data.dealer);
-        setDeck(data.deck);
-        setGameState("playing");
+        try {
+            setAiSuggestion(''); // Clear previous suggestion
+            setMessage('Starting game...');
+            const response = await fetch(`${BASE_URL}/start`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            setPlayerHand(data.player);
+            setDealerHand(data.dealer); 
+            setGameState(data.gameState);
+            setMessage("Game started! Your turn.");
+            // Check for Blackjack
+             if (data.gameState !== 'playing') {
+                 setMessage(`Game Over: ${data.gameState}`);
+             }
+
+        } catch (error) {
+            console.error("Error starting game:", error);
+            setMessage(`Error starting game: ${error.message}. Is the backend running?`);
+            setGameState("error");
+        }
     };
 
     const hit = async () => {
-        const response = await fetch("http://localhost:5000/hit");
-        const data = await response.json();
-        setPlayerHand(data.player);
-        setGameState(data.gameState);
+        try {
+            setAiSuggestion(''); 
+            setMessage('Hitting...');
+            const response = await fetch(`${BASE_URL}/hit`); 
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            setPlayerHand(data.player);
+            setGameState(data.gameState); // 'player_bust' or 'playing'
+            
+            if (data.gameState === 'player_bust') {
+                setMessage("You busted!");
+            } else {
+                 setMessage("Your turn.");
+            }
+
+        } catch (error) {
+            console.error("Error hitting:", error);
+            setMessage(`Error hitting: ${error.message}`);
+            setGameState("error");
+        }
     };
 
     const stand = async () => {
-        const response = await fetch("http://localhost:5000/stand");
-        const data = await response.json();
-        setDealerHand(data.dealer);
-        setGameState(data.gameState);
+        try {
+            setAiSuggestion(''); // Clear suggestion on player action
+            setMessage('Standing... Dealer plays.');
+            const response = await fetch(`${BASE_URL}/stand`); 
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            setDealerHand(data.dealer); // Update dealer's full hand
+            setGameState(data.gameState); 
+            setMessage(`Game Over: ${data.gameState}`); // Display result
+
+        } catch (error) {
+            console.error("Error standing:", error);
+            setMessage(`Error standing: ${error.message}`);
+            setGameState("error");
+        }
+    };
+
+    const getAiHint = async () => {
+        if (gameState !== 'playing' || !playerHand || playerHand.length === 0) {
+            setAiSuggestion('Hint not available now.');
+            return;
+        }
+
+        try {
+            setAiSuggestion('Getting hint...'); // Indicate loading
+            const response = await fetch(`${AI_BOT_URL}/api/bot_decision`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Send the player's hand in the format the bot expects
+                body: JSON.stringify({ playerHand: playerHand }), 
+            });
+
+            if (!response.ok) {
+                 const errorData = await response.json().catch(() => ({ error: 'Unknown error structure' })); // Try to parse error
+                 throw new Error(`AI Bot Error: ${response.status} - ${errorData.error || 'Failed to fetch hint'}`);
+            }
+
+            const data = await response.json();
+            if (data.decision) {
+                setAiSuggestion(`AI Suggests: ${data.decision.toUpperCase()}`);
+            } else {
+                 setAiSuggestion('Received unclear suggestion.');
+            }
+
+        } catch (error) {
+            console.error("Error getting AI hint:", error);
+            setAiSuggestion(`Error getting hint: ${error.message}`);
+        }
     };
 
     return (
-        <div className="p-4 text-center">
-            <h1 className="text-xl font-bold">HunchAI - Black Jack</h1>
-            <div className="mt-4">
-                <h2>Dealer's Hand</h2>
-                <p>{dealerHand.join(", ")}</p>
+        <div className="p-4 text-center bg-gray-800 text-white min-h-screen">
+            <h1 className="text-3xl font-bold mb-6 text-yellow-400">Black Jack</h1>
+            
+            <div className="mb-6 p-4 bg-gray-700 rounded shadow">
+                <h2 className="text-xl font-semibold mb-2 text-gray-300">Dealer's Hand</h2>
+                {/* Use formatHand to display cards */}
+                <p className="text-lg font-mono h-8">{formatHand(dealerHand)}</p> 
             </div>
-            <div className="mt-4">
-                <h2>Your Hand</h2>
-                <p>{playerHand.join(", ")}</p>
+
+            <div className="mb-6 p-4 bg-gray-700 rounded shadow">
+                <h2 className="text-xl font-semibold mb-2 text-gray-300">Your Hand</h2>
+                 {/* Use formatHand to display cards */}
+                <p className="text-lg font-mono h-8">{formatHand(playerHand)}</p>
             </div>
-            {gameState === "waiting" && (
-                <button onClick={startGame}>Start Game</button>
-            )}
-            {gameState === "playing" && (
-                <div>
-                    <button onClick={hit} className="mr-2">Hit</button>
-                    <button onClick={stand}>Stand</button>
-                </div>
-            )}
-            {gameState !== "playing" && gameState !== "waiting" && (
-                <p className="mt-4">Game Over: {gameState}</p>
-            )}
+
+            {/* Game Status Message */}
+            <div className="mb-4 h-6 text-yellow-300 font-semibold">
+                {message}
+            </div>
+
+             {/* AI Suggestion */}
+             <div className="mb-4 h-6 text-cyan-400 font-semibold">
+                 {aiSuggestion}
+             </div>
+
+
+            {/* Game Controls */}
+            <div className="mt-4 space-x-3">
+                {gameState === "waiting" || gameState.includes("win") || gameState.includes("bust") || gameState.includes("push") || gameState === "error" ? (
+                    <button 
+                        onClick={startGame} 
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
+                    >
+                        Start Game
+                    </button>
+                ) : null}
+
+                {gameState === "playing" && (
+                    <>
+                        <button 
+                            onClick={hit} 
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
+                        >
+                            Hit
+                        </button>
+                        <button 
+                            onClick={stand} 
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
+                        >
+                            Stand
+                        </button>
+                         {/* Add AI Hint Button */}
+                         <button 
+                            onClick={getAiHint} 
+                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
+                        >
+                            Get AI Hint
+                        </button>
+                    </>
+                )}
+            </div>
         </div>
     );
 };
