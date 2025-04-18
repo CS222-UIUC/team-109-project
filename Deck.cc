@@ -1,26 +1,40 @@
-#include "deck.hoo"
+#include "Deck.hpp"
 #include <algorithm>
 #include <random>
 #include <stdexcept>
+#include <nlohmann/json.hpp>
 
-//non jocker constructor
-Deck::Card::Card(const std::string& r, const  std::string& s) : rank(r), suit(s), Joker(false) {}
-//jocker constructor
-Deck::Card::Card() : rank("Joker"), suit(""), Joker(true) {}
+//non joker constructor
+Deck::Card::Card(const std::string r, const  std::string s) : rank(r), suit(s), isJoker(false) {}
+//joker constructor
+Deck::Card::Card() : rank("Joker"), suit(""), isJoker(true) {}
+
+using json = nlohmann::json;
+
+struct Card {
+  std::string rank;
+  std::string suit;
+  bool isJoker;
+  // …
+
+  json toJson() const {
+    return json{{"rank", rank}, {"suit", suit}};
+  }
+};
 
 
 std::string Deck::Card::Value_Card() const {
-	return isJoker ? "Joker" : (rank + ' ' +suit)
+	return isJoker ? "Joker" : (rank + ' ' +suit);
 }
 
 void Deck::Card::print() const {
 	std::cout << Value_Card();
 }
 
-Deck::Deck(int numDecks, bool useJoker) : numDecks_(numDecks), useJoker_(useJoker) {
-	if (numDecks_ <= 0) throw std::invalide_argument("Number of Decks must be 1 or more.");
+Deck::Deck(int numDecks, bool useJokerrr) : numDecks_(numDecks), useJoker_(useJokerrr) {
+	if (numDecks_ <= 0) throw std::invalid_argument("Number of Decks must be 1 or more.");
 	//have to check games incorporated but for our blackjack version, 6 decks
-	if (numDecks_ > 6) throw std::invalide_argument("Number of Deck must be less than 6,");
+	if (numDecks_ > 6) throw std::invalid_argument("Number of Deck must be less than 6,");
 	makeDeck();
 }
 

@@ -1,21 +1,24 @@
-#include "crow_all.h" 
-#include "nlohmann/json.hpp" 
-#include "BlackJack.hpp" 
+#include "crow_all.h"
+#include "nlohmann/json.hpp"
+#include "BlackJack.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
-#include <mutex> 
+#include <mutex>
 
 using json = nlohmann::json;
 
-json cardToJson(const Deck::Card& card) {
+json cardToJson(const Deck::Card &card)
+{
     return json{{"rank", card.rank}, {"suit", card.suit}};
 }
 
-json handToJson(const std::vector<Deck::Card>& hand) {
+json handToJson(const std::vector<Deck::Card> &hand)
+{
     json jsonHand = json::array();
-    for (const auto& card : hand) {
-        jsonHand.push_back(cardToJson(card));
+    for (const auto &card : hand)
+    {
+        jsonHand.push_back(card.toJson());
     }
     return jsonHand;
 }
@@ -23,19 +26,20 @@ json handToJson(const std::vector<Deck::Card>& hand) {
 BlackJack blackjack_game;
 std::mutex game_mutex;
 
-int main() {
+int main()
+{
     crow::SimpleApp app;
 
     // Enable CORS
-    auto& cors = app.get_middleware<crow::CorsMiddleware>();
+    auto &cors = app.get_middleware<crow::CorsMiddleware>();
     cors
-      .global() // Apply to all routes
+        .global()                        // Apply to all routes
         .origin("http://localhost:3000") // Allow React frontend
         .methods("POST"_method, "GET"_method)
-        .headers("Content-Type"); 
+        .headers("Content-Type");
 
-    CROW_ROUTE(app, "/start").methods(crow::HTTPMethod::POST)
-    ([]() {
+    CROW_ROUTE(app, "/start").methods(crow::HTTPMethod::POST)([]()
+                                                              {
         std::lock_guard<std::mutex> lock(game_mutex); // Lock the game
 
         try {
@@ -67,11 +71,10 @@ int main() {
             std::cerr << "Error in /start: " << e.what() << std::endl;
             json error_resp = {{"error", e.what()}};
             return crow::response(500, error_resp.dump());
-        }
-    });
+        } });
 
-    CROW_ROUTE(app, "/hit").methods(crow::HTTPMethod::POST)
-    ([]() {
+    CROW_ROUTE(app, "/hit").methods(crow::HTTPMethod::POST)([]()
+                                                            {
         std::lock_guard<std::mutex> lock(game_mutex);
 
         if (blackjack_game.isGameOver()) {
@@ -107,11 +110,10 @@ int main() {
             std::cerr << "Error in /hit: " << e.what() << std::endl;
             json error_resp = {{"error", e.what()}};
             return crow::response(500, error_resp.dump());
-        }
-    });
+        } });
 
-    CROW_ROUTE(app, "/stand").methods(crow::HTTPMethod::POST)
-    ([]() {
+    CROW_ROUTE(app, "/stand").methods(crow::HTTPMethod::POST)([]()
+                                                              {
         std::lock_guard<std::mutex> lock(game_mutex); // Lock the game instance
 
         if (blackjack_game.isGameOver()) {
@@ -142,14 +144,13 @@ int main() {
             std::cerr << "Error in /stand: " << e.what() << std::endl;
             json error_resp = {{"error", e.what()}};
             return crow::response(500, error_resp.dump());
-        }
-    });
-    
-    app.loglevel(crow::LogLevel::Info); 
+        } });
+
+    app.loglevel(crow::LogLevel::Info);
 
     // Run on port 5000
     std::cout << "Starting Blackjack Game Server on port 5000..." << std::endl;
-    app.port(5000).run(); 
+    app.port(5000).run();
 
     return 0;
 }
