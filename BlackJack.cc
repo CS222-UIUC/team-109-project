@@ -2,7 +2,7 @@
 #include <iostream>
 #include <limits>
 
-BlackJack::BlackJack() : deck(6, false), gameOver(false) {}
+BlackJack::BlackJack() : deck(6), gameOver(false) {}
 
 void BlackJack::reset() {
     playerHand.clear();
@@ -20,6 +20,7 @@ int BlackJack::getCardValue(const Deck::Card& card) const {
 int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
     int total = 0;
     int aceCount = 0;
+    std::string choice;
 
     for (const auto& card : hand) {
         int value = getCardValue(card);
@@ -31,6 +32,18 @@ int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
         total -= 10;
         aceCount--;
     }
+
+    if (aceCount > 0) {
+        std::cout << "do you want ace value 1 or 11";
+        std::cin>> choice;
+    }
+    if (choice == "1") {
+        total -= 10;
+        aceCount--;
+    } else if (choice != "11") {
+        std::cout << "do you want ace value 1 or 11";
+        std::cin>> choice;;
+    } 
 
     return total;
 }
