@@ -12,7 +12,8 @@
 #ifndef CATCH_CONFIG_MAIN
 #  define CATCH_CONFIG_MAIN
 #endif
-#include "catch.hpp"
+#include <catch2/catch_test_macros.hpp>
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 //                                 Includes //
@@ -153,58 +154,83 @@ TEST_CASE("Card value representation works correctly", "[card]") {
 //black jack class
 
 
+/////
 
-TEST_CASE("BlackJack deals two cards to each player on start") {
+
+void test_getCardValue() {
     BlackJack game;
-    game.startGame();
-    REQUIRE(game.getPlayerHand().size() == 2);
-    REQUIRE(game.getDealerHand().size() == 2);
+    assert(game.getCardValue({"2", "Hearts"}) == 2);
+    assert(game.getCardValue({"10", "Spades"}) == 10);
+    assert(game.getCardValue({"K", "Clubs"}) == 10);
+    assert(game.getCardValue({"A", "Diamonds"}) == 11);
+    std::cout << "test_getCardValue passed\n";
 }
 
-TEST_CASE("Player hit adds a card to their hand") {
+void test_calculateHandValue() {
     BlackJack game;
-    game.startGame();
-    size_t before = game.getPlayerHand().size();
-    game.playerHit();
-    size_t after = game.getPlayerHand().size();
-    REQUIRE(after == before + 1);
+
+    std::vector<Deck::Card> hand1 = { {"A", "Hearts"}, {"9", "Diamonds"} };
+    assert(game.calculateHandValue(hand1) == 20);
+
+    std::vector<Deck::Card> hand2 = { {"A", "Hearts"}, {"9", "Diamonds"}, {"A", "Spades"} };
+    assert(game.calculateHandValue(hand2) == 21);
+
+    std::vector<Deck::Card> hand3 = { {"A", "Hearts"}, {"9", "Diamonds"}, {"A", "Spades"}, {"5", "Clubs"} };
+    assert(game.calculateHandValue(hand3) == 16);
+
+    std::cout << "test_calculateHandValue passed\n";
 }
 
-TEST_CASE("Hand value handles multiple Aces correctly") {
-    std::vector<Card> hand = {
-        Card{"A", "Hearts"},
-        Card{"9", "Spades"},
-        Card{"5", "Clubs"}
-    };
-
+void test_isBust() {
     BlackJack game;
-    int score = game.calculateHandValue(hand);
-    REQUIRE(score == 15);
+
+    std::vector<Deck::Card> busted = { {"K", "Spades"}, {"9", "Hearts"}, {"5", "Diamonds"} };
+    assert(game.isBust(busted) == true);
+
+    std::vector<Deck::Card> safe = { {"A", "Spades"}, {"9", "Clubs"} };
+    assert(game.isBust(safe) == false);
+
+    std::cout << "test_isBust passed\n";
 }
 
-TEST_CASE("Dealer draws until reaching at least 17") {
+void test_determineWinner() {
     BlackJack game;
-    game.startGame();
-    while (game.calculateHandValue(game.getPlayerHand()) < 17) {
-        game.playerHit();
-    }
-    game.dealerTurn();
-    int dealerScore = game.calculateHandValue(game.getDealerHand());
-    REQUIRE(dealerScore >= 17);
+
+    game.reset();
+    game.playerHand = { {"10", "Spades"}, {"9", "Diamonds"} };
+    game.dealerHand = { {"10", "Clubs"}, {"7", "Hearts"} };
+    assert(game.determineWinner() == "Player wins!");
+
+    game.playerHand = { {"8", "Spades"}, {"8", "Hearts"} };
+    game.dealerHand = { {"10", "Clubs"}, {"8", "Diamonds"} };
+    assert(game.determineWinner() == "Dealer wins!");
+
+    game.playerHand = { {"10", "Spades"}, {"7", "Hearts"} };
+    game.dealerHand = { {"10", "Clubs"}, {"7", "Diamonds"} };
+    assert(game.determineWinner() == "Push (tie)!");
+
+    game.playerHand = { {"K", "Spades"}, {"9", "Hearts"}, {"5", "Clubs"} };
+    game.dealerHand = { {"2", "Diamonds"}, {"5", "Spades"} };
+    assert(game.determineWinner() == "Dealer wins!");
+
+    game.playerHand = { {"10", "Hearts"}, {"9", "Diamonds"} };
+    game.dealerHand = { {"K", "Clubs"}, {"9", "Spades"}, {"5", "Diamonds"} };
+    assert(game.determineWinner() == "Player wins!");
+
+    std::cout << "test_determineWinner passed\n";
 }
 
-TEST_CASE("Winner is decided correctly when hands are known") {
+void test_reset() {
     BlackJack game;
-    std::vector<Card> player = {
-        Card{"10", "Hearts"},
-        Card{"9", "Spades"}
-    };
-    std::vector<Card> dealer = {
-        Card{"10", "Clubs"},
-        Card{"7", "Diamonds"}
-    };
-    game.setPlayerHand(player);
-    game.setDealerHand(dealer);
-    REQUIRE(game.checkWinner() == "Player wins!");
+    game.playerHand = { {"10", "Hearts"} };
+    game.dealerHand = { {"8", "Clubs"} };
+
+    game.reset();
+    assert(game.playerHand.empty());
+    assert(game.dealerHand.empty());
+
+    std::cout << "test_reset passed\n";
 }
+
+
 

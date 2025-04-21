@@ -16,7 +16,7 @@ private:
     std::vector<Deck::Card> playerHand;
     std::vector<Deck::Card> dealerHand;
     bool gameOver;
-
+    // for testing we might have to move these from private to public
     int calculateHandValue(const std::vector<Deck::Card>& hand) const;
     void dealInitialCards();
     void playerTurn();
