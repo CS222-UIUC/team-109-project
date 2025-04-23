@@ -18,34 +18,26 @@ int BlackJack::getCardValue(const Deck::Card& card) const {
 }
 
 int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
-    int total = 0;
-    int aceCount = 0;
-    std::string choice;
+  int total = 0, aceCount = 0;
+  for (auto& c : hand) {
+    int v = getCardValue(c);
+    total += v;
+    if (c.rank == "A") aceCount++;
+  }
+  while (total > 21 && aceCount--) total -= 10;
+  return total;
+}
 
-    for (const auto& card : hand) {
-        int value = getCardValue(card);
-        if (card.rank == "A") aceCount++;
-        total += value;
-    }
 
-    while (total > 21 && aceCount > 0) {
-        total -= 10;
-        aceCount--;
-    }
+void BlackJack::playerHit() {
+    playerHand.push_back(deck.draw());
+    if (isBust(playerHand)) gameOver = true;
+}
 
-    if (aceCount > 0) {
-        std::cout << "do you want ace value 1 or 11";
-        std::cin>> choice;
-    }
-    if (choice == "1") {
-        total -= 10;
-        aceCount--;
-    } else if (choice != "11") {
-        std::cout << "do you want ace value 1 or 11";
-        std::cin>> choice;;
-    } 
-
-    return total;
+void BlackJack::dealerPlays() {
+    // reuse existing dealerTurn logic, then end the game
+    dealerTurn();
+    gameOver = true;
 }
 
 bool BlackJack::isBust(const std::vector<Deck::Card>& hand) const {
@@ -125,4 +117,33 @@ void BlackJack::playGame() {
     }
 
     std::cout << determineWinner() << std::endl;
+}
+
+
+const std::vector<Deck::Card>& BlackJack::getPlayerHand() const {
+    return playerHand;
+}
+
+const std::vector<Deck::Card>& BlackJack::getDealerHand() const {
+    return dealerHand;
+}
+
+int BlackJack::getPlayerScore() const {
+    return calculateHandValue(playerHand);
+}
+
+bool BlackJack::isPlayerBusted() const {
+    return isBust(playerHand);
+}
+
+bool BlackJack::isGameOver() const {
+    return gameOver;
+}
+
+std::string BlackJack::determineOutcome() const {
+    return determineWinner();
+}
+
+void BlackJack::setGameOver(bool over) {
+    gameOver = over;
 }

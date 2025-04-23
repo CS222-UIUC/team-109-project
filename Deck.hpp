@@ -2,9 +2,10 @@
 #define DECK_HPP
 
 
-#include	 <iostream>
+#include <iostream>
 #include <vector>
 #include <string>
+#include <nlohmann/json.hpp>
 
 class Deck {
 	public:
@@ -23,6 +24,8 @@ class Deck {
 			std::string Value_Card() const;
 			//print card value
 			void print() const;
+			// JSON serialization for our REST API
+            nlohmann::json toJson() const;
 
 		};
 

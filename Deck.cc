@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <random>
 #include <stdexcept>
+#include <nlohmann/json.hpp>
 
 //non joker constructor
 Deck::Card::Card(const std::string r, const  std::string s) : rank(r), suit(s) {}
@@ -78,4 +79,9 @@ void Deck::reset(bool shuffleUsedCards) {
 	}
 }
 
-
+nlohmann::json Deck::Card::toJson() const {
+    return {
+        {"rank", rank},
+        {"suit", suit}
+    };
+}
