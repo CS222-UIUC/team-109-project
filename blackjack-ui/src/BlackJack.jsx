@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Card from './components/Card';
 
 const BlackJack = () => {
     const [playerHand, setPlayerHand] = useState([]);
@@ -8,23 +9,7 @@ const BlackJack = () => {
     const [aiSuggestion, setAiSuggestion] = useState('');
 
     // Input: array of card objects 
-    // Output: string like "K Hearts, 10 Spades"
-    const formatHand = (hand) => {
-        if (!hand || hand.length === 0) {
-            return "(empty)";
-        }
-        // dealer's hidden card
-        if (gameState === 'playing' && hand === dealerHand && hand.length > 0) {
-            const firstCard = hand[0];
-            const firstCardStr = firstCard && firstCard.rank && firstCard.suit
-                ? `${firstCard.rank} ${firstCard.suit}`
-                : "(Card Error)";
-            return `${firstCardStr}, (Hidden)`;
-        }
-        return hand.map(card =>
-            (card && card.rank && card.suit) ? `${card.rank} ${card.suit}` : '(Card Error)'
-        ).join(", ");
-    };
+    // Output: string like "K Hearts, 10 Spades
 
     // API interaction (C++ server now on port 5002)
     const BASE_URL = "http://localhost:5002";
@@ -36,9 +21,9 @@ const BlackJack = () => {
             setMessage('Starting game...');
             const response = await fetch(`${BASE_URL}/start`, {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({}),
-              });
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
@@ -61,9 +46,9 @@ const BlackJack = () => {
             setMessage('Hitting...');
             const response = await fetch(`${BASE_URL}/start`, {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({}),
-              });
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
@@ -85,9 +70,9 @@ const BlackJack = () => {
             setMessage('Standing... Dealer plays.');
             const response = await fetch(`${BASE_URL}/start`, {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({}),
-              });
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
@@ -111,7 +96,7 @@ const BlackJack = () => {
             const response = await fetch(`${AI_BOT_URL}/api/bot_decision`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ playerHand }),
+                body: JSON.stringify({ playerHand }),
             });
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
@@ -133,12 +118,24 @@ const BlackJack = () => {
 
             <div className="mb-6 p-4 bg-gray-700 rounded shadow">
                 <h2 className="text-xl font-semibold mb-2 text-gray-300">Dealer's Hand</h2>
-                <p className="text-lg font-mono h-8">{formatHand(dealerHand)}</p>
+                <div className="flex justify-center items-center space-x-2">
+                    {dealerHand.map((card, idx) => (
+                        <Card
+                            key={idx}
+                            card={card}
+                            hidden={gameState === 'playing' && idx > 0}
+                        />
+                    ))}
+                </div>
             </div>
 
             <div className="mb-6 p-4 bg-gray-700 rounded shadow">
                 <h2 className="text-xl font-semibold mb-2 text-gray-300">Your Hand</h2>
-                <p className="text-lg font-mono h-8">{formatHand(playerHand)}</p>
+                <div className="flex justify-center items-center space-x-2">
+                    {playerHand.map((card, idx) => (
+                        <Card key={idx} card={card} hidden={false} />
+                    ))}
+                </div>
             </div>
 
             <div className="mb-4 h-6 text-yellow-300 font-semibold">
@@ -150,15 +147,15 @@ const BlackJack = () => {
 
             <div className="mt-4 space-x-3">
                 {(gameState === "waiting" ||
-                  /win|bust|push/.test(gameState) ||
-                  gameState === "error") && (
-                    <button
-                        onClick={startGame}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow"
-                    >
-                        Start Game
-                    </button>
-                )}
+                    /win|bust|push/.test(gameState) ||
+                    gameState === "error") && (
+                        <button
+                            onClick={startGame}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow"
+                        >
+                            Start Game
+                        </button>
+                    )}
                 {gameState === "playing" && (
                     <>
                         <button
