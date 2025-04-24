@@ -33,17 +33,17 @@ int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
         aceCount--;
     }
 
-    if (aceCount > 0) {
-        std::cout << "do you want ace value 1 or 11";
-        std::cin>> choice;
-    }
-    if (choice == "1") {
-        total -= 10;
-        aceCount--;
-    } else if (choice != "11") {
-        std::cout << "do you want ace value 1 or 11";
-        std::cin>> choice;;
-    } 
+    // if (aceCount > 0) {
+    //     std::cout << "do you want ace value 1 or 11";
+    //     std::cin>> choice;
+    // }
+    // if (choice == "1") {
+    //     total -= 10;
+    //     aceCount--;
+    // } else if (choice != "11") {
+    //     std::cout << "do you want ace value 1 or 11";
+    //     std::cin>> choice;;
+    // } 
 
     return total;
 }
@@ -102,6 +102,23 @@ void BlackJack::dealerTurn() {
     }
 }
 
+std::string BlackJack::determineWinner(const std::vector<Deck::Card>& hand) const {
+    int playerScore = calculateHandValue(hand);
+    int dealerScore = calculateHandValue(dealerHand);
+
+    if (playerScore > 21) return "Dealer wins!";
+    if (dealerScore > 21) return "Player wins!";
+    if (playerScore > dealerScore) return "Player wins!";
+    if (dealerScore > playerScore) return "Dealer wins!";
+    return "Push (tie)!";
+}
+
+
+// std::string BlackJack::determineWinner() const {
+//     return determineWinner(playerHand);
+// }
+
+
 std::string BlackJack::determineWinner() const {
     int playerScore = calculateHandValue(playerHand);
     int dealerScore = calculateHandValue(dealerHand);
@@ -113,16 +130,74 @@ std::string BlackJack::determineWinner() const {
     return "Push (tie)!";
 }
 
+//if first two cards value is same
+bool BlackJack::canSplit() const {
+    return playerHand.size() == 2 && getCardValue(playerHand[0]) == getCardValue(playerHand[1]);
+}
+
+void BlackJack::split() {
+    std::cout << "Splitting hand...\n";
+    playerHands.clear();
+
+    // Create two new hands
+    std::vector<Deck::Card> hand1 = {playerHand[0], deck.draw()};
+    std::vector<Deck::Card> hand2 = {playerHand[1], deck.draw()};
+
+    playerHands.push_back(hand1);
+    playerHands.push_back(hand2);
+}
+
+
+// void BlackJack::playGame() {
+//     reset();
+//     dealInitialCards();
+
+//     std::cout << "Dealer show: " << dealerHand[0].Value_Card() << " | ?" << std::endl;
+//     playerTurn();
+
+//     if (!isBust(playerHand)) {
+//         dealerTurn();
+//     }
+
+//     std::cout << determineWinner() << std::endl;
+// }
+
 void BlackJack::playGame() {
     reset();
     dealInitialCards();
 
     std::cout << "Dealer show: " << dealerHand[0].Value_Card() << " | ?" << std::endl;
-    playerTurn();
+
+    // Offer split if possible
+    if (canSplit()) {
+        std::string choice;
+        std::cout << "Do you want to split? (y/n): ";
+        std::cin >> choice;
+        if (choice == "y") {
+            split();
+            for (size_t i = 0; i < playerHands.size(); ++i) {
+                std::cout << "\n-Playing hand " << i + 1 << " -\n";
+                playerHand = playerHands[i];  // temp load first hand
+                playerTurn();
+                playerHands[i] = playerHand;  // save back both hand
+            }
+        } else {
+            playerTurn();
+        }
+    } else {
+        playerTurn();
+    }
 
     if (!isBust(playerHand)) {
         dealerTurn();
     }
 
-    std::cout << determineWinner() << std::endl;
+    if (!playerHands.empty()) {
+        for (size_t i = 0; i < playerHands.size(); ++i) {
+            std::cout << "\nResult for hand " << i + 1 << ": ";
+            std::cout << determineWinner(playerHands[i]) << std::endl;
+        }
+    } else {
+        std::cout << determineWinner() << std::endl;
+    }
 }

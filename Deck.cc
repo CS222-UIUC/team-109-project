@@ -6,7 +6,6 @@
 //non joker constructor
 Deck::Card::Card(const std::string r, const  std::string s) : rank(r), suit(s) {}
 //joker constructor
-// Deck::Card::Card() : rank("Joker"), suit("") {}
 
 
 std::string Deck::Card::Value_Card() const {
@@ -17,7 +16,7 @@ void Deck::Card::print() const {
 	std::cout << Value_Card();
 }
 
-Deck::Deck(int numDecks) : numDecks_(numDecks) //, useJoker_(useJokerrr) 
+Deck::Deck(int numDecks) : numDecks_(numDecks) 
 {
 	if (numDecks_ <= 0) throw std::invalid_argument("Number of Decks must be 1 or more.");
 	//have to check games incorporated but for our blackjack version, 6 decks
@@ -38,10 +37,6 @@ void Deck::makeDeck() {
 				cards_.emplace_back(rank, suit);
 			}
 		}
-		// if (useJoker_) {
-		// 	cards_.emplace_back();
-		// 	cards_.emplace_back();
-		// }
 	}
 	shuffle();
 }
