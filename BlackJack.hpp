@@ -11,9 +11,9 @@ public:
     void playGame();  
     void reset();
 
-private:
     Deck deck;
     std::vector<Deck::Card> playerHand;
+    std::vector<std::vector<Deck::Card>> playerHands;
     std::vector<Deck::Card> dealerHand;
     bool gameOver;
 
@@ -21,10 +21,13 @@ private:
     void dealInitialCards();
     void playerTurn();
     void dealerTurn();
-    void displayHand(const std::vector<Deck::Card>& hand, const std::string& name) const;
+    std::string determineWinner(const std::vector<Deck::Card> &hand) const;
+    void displayHand(const std::vector<Deck::Card> &hand, const std::string &name) const;
     bool isBust(const std::vector<Deck::Card>& hand) const;
     std::string determineWinner() const;
-    int getCardValue(const Deck::Card& card) const;
+    bool canSplit() const;
+    void split();
+    int getCardValue(const Deck::Card &card) const;
 };
 
 #endif
