@@ -112,6 +112,8 @@ const BlackJack = () => {
         }
     };
 
+
+
     return (
         <div className="p-4 text-center bg-gray-800 text-white min-h-screen">
             <h1 className="text-3xl font-bold mb-6 text-yellow-400">Black Jack</h1>
@@ -145,41 +147,87 @@ const BlackJack = () => {
                 {aiSuggestion}
             </div>
 
-            <div className="mt-4 space-x-3">
+            <div style={{
+                display: 'flex',
+                gap: '15px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+            }}>
                 {(gameState === "waiting" ||
                     /win|bust|push/.test(gameState) ||
                     gameState === "error") && (
-                        <button
-                            onClick={startGame}
-                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow"
-                        >
-                            Start Game
+                        <button onClick={startGame} style={{
+                            backgroundColor: '#4ade80',
+                            padding: '12px 24px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                            🎲 Start Game
                         </button>
                     )}
                 {gameState === "playing" && (
                     <>
-                        <button
-                            onClick={hit}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow"
-                        >
-                            Hit
+                        <button onClick={hit} style={{
+                            backgroundColor: '#ef4444',
+                            padding: '12px 24px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            alignItems: 'center',
+                            display: 'flex',
+                            justifyContent: 'center',
+                        }}>
+                            ❤️ Hit
                         </button>
                         <button
                             onClick={stand}
-                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded shadow"
+                            style={{
+                                backgroundColor: '#3b82f6',
+                                padding: '12px 24px',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
                         >
-                            Stand
+                            ✋ Stand
                         </button>
                         <button
                             onClick={getAiHint}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded shadow"
+                            style={{
+                                backgroundColor: '#a855f7',
+                                padding: '12px 24px',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
                         >
-                            Get AI Hint
+                            💡 Get AI Hint
                         </button>
                     </>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
