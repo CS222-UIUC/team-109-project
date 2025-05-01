@@ -41,7 +41,7 @@ add_executable(game_server
 
 # Link Crow (brings in nlohmann/json too)
 target_link_libraries(game_server PRIVATE
-  crow
+  Crow::Crow
 )
 
 # Include manually what Crow doesn't (Asio + optional JSON)
