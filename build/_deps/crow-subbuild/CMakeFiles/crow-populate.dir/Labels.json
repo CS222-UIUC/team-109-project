@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/CMakeFiles/crow-populate"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/CMakeFiles/crow-populate.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/CMakeFiles/crow-populate-complete.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-build.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-configure.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-download.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-install.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-mkdir.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-patch.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-test.rule"
+		},
+		{
+			"file" : "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-subbuild/crow-populate-prefix/src/crow-populate-stamp/crow-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"crow-populate"
+		],
+		"name" : "crow-populate"
+	}
+}

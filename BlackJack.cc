@@ -17,6 +17,7 @@ int BlackJack::getCardValue(const Deck::Card& card) const {
     return std::stoi(card.rank);
 }
 
+
 int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
   int total = 0, aceCount = 0;
   for (auto& c : hand) {

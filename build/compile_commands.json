@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/Users/affanfaisal/cs222FNF/team-109-project/build",
+  "command": "/usr/bin/clang++ -DASIO_STANDALONE -I/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-src/include -I/opt/homebrew/include -I/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-src/include -isystem /Users/affanfaisal/cs222FNF/team-109-project/build/_deps/asio-src/asio/include -g -std=gnu++17 -arch arm64 -o CMakeFiles/game_server.dir/game_server.cc.o -c /Users/affanfaisal/cs222FNF/team-109-project/game_server.cc",
+  "file": "/Users/affanfaisal/cs222FNF/team-109-project/game_server.cc",
+  "output": "CMakeFiles/game_server.dir/game_server.cc.o"
+},
+{
+  "directory": "/Users/affanfaisal/cs222FNF/team-109-project/build",
+  "command": "/usr/bin/clang++ -DASIO_STANDALONE -I/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-src/include -I/opt/homebrew/include -I/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-src/include -isystem /Users/affanfaisal/cs222FNF/team-109-project/build/_deps/asio-src/asio/include -g -std=gnu++17 -arch arm64 -o CMakeFiles/game_server.dir/BlackJack.cc.o -c /Users/affanfaisal/cs222FNF/team-109-project/BlackJack.cc",
+  "file": "/Users/affanfaisal/cs222FNF/team-109-project/BlackJack.cc",
+  "output": "CMakeFiles/game_server.dir/BlackJack.cc.o"
+},
+{
+  "directory": "/Users/affanfaisal/cs222FNF/team-109-project/build",
+  "command": "/usr/bin/clang++ -DASIO_STANDALONE -I/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-src/include -I/opt/homebrew/include -I/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/crow-src/include -isystem /Users/affanfaisal/cs222FNF/team-109-project/build/_deps/asio-src/asio/include -g -std=gnu++17 -arch arm64 -o CMakeFiles/game_server.dir/Deck.cc.o -c /Users/affanfaisal/cs222FNF/team-109-project/Deck.cc",
+  "file": "/Users/affanfaisal/cs222FNF/team-109-project/Deck.cc",
+  "output": "CMakeFiles/game_server.dir/Deck.cc.o"
+}
+]

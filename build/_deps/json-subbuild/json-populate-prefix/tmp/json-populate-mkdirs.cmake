@@ -6,22 +6,22 @@ cmake_minimum_required(VERSION ${CMAKE_VERSION}) # this file comes with cmake
 # If CMAKE_DISABLE_SOURCE_CHANGES is set to true and the source directory is an
 # existing directory in our source tree, calling file(MAKE_DIRECTORY) on it
 # would cause a fatal error, even though it would be a no-op.
-if(NOT EXISTS "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-src")
-  file(MAKE_DIRECTORY "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-src")
+if(NOT EXISTS "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-src")
+  file(MAKE_DIRECTORY "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-src")
 endif()
 file(MAKE_DIRECTORY
-  "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-build"
-  "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-subbuild/json-populate-prefix"
-  "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-subbuild/json-populate-prefix/tmp"
-  "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp"
-  "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src"
-  "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp"
+  "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-build"
+  "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-subbuild/json-populate-prefix"
+  "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-subbuild/json-populate-prefix/tmp"
+  "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp"
+  "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src"
+  "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/${subDir}")
+    file(MAKE_DIRECTORY "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp${cfgdir}") # cfgdir has leading slash
 endif()

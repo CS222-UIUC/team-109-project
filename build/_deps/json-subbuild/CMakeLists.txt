@@ -18,18 +18,18 @@ project(json-populate NONE)
 
 # Pass through things we've already detected in the main project to avoid
 # paying the cost of redetecting them again in ExternalProject_Add()
-set(GIT_EXECUTABLE [==[/opt/local/bin/git]==])
-set(GIT_VERSION_STRING [==[2.42.0]==])
+set(GIT_EXECUTABLE [==[/opt/homebrew/bin/git]==])
+set(GIT_VERSION_STRING [==[2.43.0]==])
 set_property(GLOBAL PROPERTY _CMAKE_FindGit_GIT_EXECUTABLE_VERSION
-  [==[/opt/local/bin/git;2.42.0]==]
+  [==[/opt/homebrew/bin/git;2.43.0]==]
 )
 
 
 include(ExternalProject)
 ExternalProject_Add(json-populate
                      "UPDATE_DISCONNECTED" "False" "GIT_REPOSITORY" "https://github.com/nlohmann/json.git" "EXTERNALPROJECT_INTERNAL_ARGUMENT_SEPARATOR" "GIT_TAG" "v3.11.3"
-                    SOURCE_DIR          "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-src"
-                    BINARY_DIR          "/Users/Aadi/Desktop/playground/team-109-project/build/_deps/json-build"
+                    SOURCE_DIR          "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-src"
+                    BINARY_DIR          "/Users/affanfaisal/cs222FNF/team-109-project/build/_deps/json-build"
                     CONFIGURE_COMMAND   ""
                     BUILD_COMMAND       ""
                     INSTALL_COMMAND     ""
