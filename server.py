@@ -3,7 +3,7 @@ from flask_cors import CORS
 from AIBlackJack import BlackjackBot  
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}) 
+CORS(app)
 
 blackjack_bot = BlackjackBot(simulation_threshold=0.45) 
 

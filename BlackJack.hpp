@@ -8,8 +8,22 @@
 class BlackJack {
 public:
     BlackJack();
-    void playGame();  
+    void playGame();
     void reset();
+
+    // — Public API for game_server.cc —
+    void dealInitialCards();
+    void playerHit();
+    void dealerPlays();
+    void setGameOver(bool over);
+
+    const std::vector<Deck::Card>& getPlayerHand()  const;
+    const std::vector<Deck::Card>& getDealerHand()  const;
+    int   getPlayerScore() const;
+    bool  isPlayerBusted() const;
+    bool  isGameOver()     const;
+    std::string determineOutcome() const;  // alias for determineWinner()
+
 
 private:
     Deck deck;
@@ -17,8 +31,8 @@ private:
     std::vector<Deck::Card> dealerHand;
     bool gameOver;
 
+    // Internal helpers
     int calculateHandValue(const std::vector<Deck::Card>& hand) const;
-    void dealInitialCards();
     void playerTurn();
     void dealerTurn();
     void displayHand(const std::vector<Deck::Card>& hand, const std::string& name) const;

@@ -1,53 +1,38 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState } from "react";
+import Card from './components/Card';
 
 const BlackJack = () => {
     const [playerHand, setPlayerHand] = useState([]);
     const [dealerHand, setDealerHand] = useState([]);
-    const [gameState, setGameState] = useState("waiting"); 
-    const [message, setMessage] = useState("Click Start Game to begin!"); // User feedback
-    const [aiSuggestion, setAiSuggestion] = useState(''); 
+    const [gameState, setGameState] = useState("waiting");
+    const [message, setMessage] = useState("Click Start Game to begin!");
+    const [aiSuggestion, setAiSuggestion] = useState('');
 
     // Input: array of card objects 
-    // Output: string like "K Hearts, 10 Spades"
-    const formatHand = (hand) => {
-        if (!hand || hand.length === 0) {
-            return "(empty)";
-        }
-        // dealer's hidden card
-        if (gameState === 'playing' && hand === dealerHand && hand.length > 0) {
-             const firstCard = hand[0];
-             const firstCardStr = firstCard && firstCard.rank && firstCard.suit 
-                                  ? `${firstCard.rank} ${firstCard.suit}` 
-                                  : "(Card Error)";
-             return `${firstCardStr}, (Hidden)`;
-        }
-        
-        return hand.map(card => 
-            (card && card.rank && card.suit) ? `${card.rank} ${card.suit}` : '(Card Error)' 
-        ).join(", ");
-    };
+    // Output: string like "K Hearts, 10 Spades
 
-    // API interaction
-    const BASE_URL = "http://localhost:5000";
+    // API interaction (C++ server now on port 5002)
+    const BASE_URL = "http://localhost:5002";
     const AI_BOT_URL = "http://localhost:5001";
 
     const startGame = async () => {
         try {
-            setAiSuggestion(''); // Clear previous suggestion
+            setAiSuggestion('');
             setMessage('Starting game...');
-            const response = await fetch(`${BASE_URL}/start`);
+            const response = await fetch(`${BASE_URL}/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}),
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
             setPlayerHand(data.player);
-            setDealerHand(data.dealer); 
+            setDealerHand(data.dealer);
             setGameState(data.gameState);
-            setMessage("Game started! Your turn.");
-            // Check for Blackjack
-             if (data.gameState !== 'playing') {
-                 setMessage(`Game Over: ${data.gameState}`);
-             }
-
+            setMessage(data.gameState === 'playing'
+                ? "Game started! Your turn."
+                : `Game Over: ${data.gameState}`);
         } catch (error) {
             console.error("Error starting game:", error);
             setMessage(`Error starting game: ${error.message}. Is the backend running?`);
@@ -57,21 +42,21 @@ const BlackJack = () => {
 
     const hit = async () => {
         try {
-            setAiSuggestion(''); 
+            setAiSuggestion('');
             setMessage('Hitting...');
-            const response = await fetch(`${BASE_URL}/hit`); 
+            const response = await fetch(`${BASE_URL}/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}),
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
             setPlayerHand(data.player);
-            setGameState(data.gameState); // 'player_bust' or 'playing'
-            
-            if (data.gameState === 'player_bust') {
-                setMessage("You busted!");
-            } else {
-                 setMessage("Your turn.");
-            }
-
+            setGameState(data.gameState);
+            setMessage(data.gameState === 'player_bust'
+                ? "You busted!"
+                : "Your turn.");
         } catch (error) {
             console.error("Error hitting:", error);
             setMessage(`Error hitting: ${error.message}`);
@@ -81,16 +66,19 @@ const BlackJack = () => {
 
     const stand = async () => {
         try {
-            setAiSuggestion(''); // Clear suggestion on player action
+            setAiSuggestion('');
             setMessage('Standing... Dealer plays.');
-            const response = await fetch(`${BASE_URL}/stand`); 
+            const response = await fetch(`${BASE_URL}/start`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}),
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
-            setDealerHand(data.dealer); // Update dealer's full hand
-            setGameState(data.gameState); 
-            setMessage(`Game Over: ${data.gameState}`); // Display result
-
+            setDealerHand(data.dealer);
+            setGameState(data.gameState);
+            setMessage(`Game Over: ${data.gameState}`);
         } catch (error) {
             console.error("Error standing:", error);
             setMessage(`Error standing: ${error.message}`);
@@ -99,103 +87,147 @@ const BlackJack = () => {
     };
 
     const getAiHint = async () => {
-        if (gameState !== 'playing' || !playerHand || playerHand.length === 0) {
+        if (gameState !== 'playing' || !playerHand.length) {
             setAiSuggestion('Hint not available now.');
             return;
         }
-
         try {
-            setAiSuggestion('Getting hint...'); // Indicate loading
+            setAiSuggestion('Getting hint...');
             const response = await fetch(`${AI_BOT_URL}/api/bot_decision`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                // Send the player's hand in the format the bot expects
-                body: JSON.stringify({ playerHand: playerHand }), 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerHand }),
             });
-
             if (!response.ok) {
-                 const errorData = await response.json().catch(() => ({ error: 'Unknown error structure' })); // Try to parse error
-                 throw new Error(`AI Bot Error: ${response.status} - ${errorData.error || 'Failed to fetch hint'}`);
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(`${response.status} - ${errorData.error}`);
             }
-
             const data = await response.json();
-            if (data.decision) {
-                setAiSuggestion(`AI Suggests: ${data.decision.toUpperCase()}`);
-            } else {
-                 setAiSuggestion('Received unclear suggestion.');
-            }
-
+            setAiSuggestion(data.decision
+                ? `AI Suggests: ${data.decision.toUpperCase()}`
+                : 'Received unclear suggestion.');
         } catch (error) {
             console.error("Error getting AI hint:", error);
             setAiSuggestion(`Error getting hint: ${error.message}`);
         }
     };
 
+
+
     return (
         <div className="p-4 text-center bg-gray-800 text-white min-h-screen">
             <h1 className="text-3xl font-bold mb-6 text-yellow-400">Black Jack</h1>
-            
+
             <div className="mb-6 p-4 bg-gray-700 rounded shadow">
                 <h2 className="text-xl font-semibold mb-2 text-gray-300">Dealer's Hand</h2>
-                {/* Use formatHand to display cards */}
-                <p className="text-lg font-mono h-8">{formatHand(dealerHand)}</p> 
+                <div className="flex justify-center items-center space-x-2">
+                    {dealerHand.map((card, idx) => (
+                        <Card
+                            key={idx}
+                            card={card}
+                            hidden={gameState === 'playing' && idx > 0}
+                        />
+                    ))}
+                </div>
             </div>
 
             <div className="mb-6 p-4 bg-gray-700 rounded shadow">
                 <h2 className="text-xl font-semibold mb-2 text-gray-300">Your Hand</h2>
-                 {/* Use formatHand to display cards */}
-                <p className="text-lg font-mono h-8">{formatHand(playerHand)}</p>
+                <div className="flex justify-center items-center space-x-2">
+                    {playerHand.map((card, idx) => (
+                        <Card key={idx} card={card} hidden={false} />
+                    ))}
+                </div>
             </div>
 
-            {/* Game Status Message */}
             <div className="mb-4 h-6 text-yellow-300 font-semibold">
                 {message}
             </div>
+            <div className="mb-4 h-6 text-cyan-400 font-semibold">
+                {aiSuggestion}
+            </div>
 
-             {/* AI Suggestion */}
-             <div className="mb-4 h-6 text-cyan-400 font-semibold">
-                 {aiSuggestion}
-             </div>
-
-
-            {/* Game Controls */}
-            <div className="mt-4 space-x-3">
-                {gameState === "waiting" || gameState.includes("win") || gameState.includes("bust") || gameState.includes("push") || gameState === "error" ? (
-                    <button 
-                        onClick={startGame} 
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
-                    >
-                        Start Game
-                    </button>
-                ) : null}
-
+            <div style={{
+                display: 'flex',
+                gap: '15px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+            }}>
+                {(gameState === "waiting" ||
+                    /win|bust|push/.test(gameState) ||
+                    gameState === "error") && (
+                        <button onClick={startGame} style={{
+                            backgroundColor: '#4ade80',
+                            padding: '12px 24px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                            🎲 Start Game
+                        </button>
+                    )}
                 {gameState === "playing" && (
                     <>
-                        <button 
-                            onClick={hit} 
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
-                        >
-                            Hit
+                        <button onClick={hit} style={{
+                            backgroundColor: '#ef4444',
+                            padding: '12px 24px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            alignItems: 'center',
+                            display: 'flex',
+                            justifyContent: 'center',
+                        }}>
+                            ❤️ Hit
                         </button>
-                        <button 
-                            onClick={stand} 
-                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
+                        <button
+                            onClick={stand}
+                            style={{
+                                backgroundColor: '#3b82f6',
+                                padding: '12px 24px',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
                         >
-                            Stand
+                            ✋ Stand
                         </button>
-                         {/* Add AI Hint Button */}
-                         <button 
-                            onClick={getAiHint} 
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded shadow transition duration-150 ease-in-out"
+                        <button
+                            onClick={getAiHint}
+                            style={{
+                                backgroundColor: '#a855f7',
+                                padding: '12px 24px',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
                         >
-                            Get AI Hint
+                            💡 Get AI Hint
                         </button>
                     </>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

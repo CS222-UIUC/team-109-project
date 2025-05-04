@@ -2,7 +2,7 @@
 #include <iostream>
 #include <limits>
 
-BlackJack::BlackJack() : deck(6, false), gameOver(false) {}
+BlackJack::BlackJack() : deck(6), gameOver(false) {}
 
 void BlackJack::reset() {
     playerHand.clear();
@@ -17,22 +17,28 @@ int BlackJack::getCardValue(const Deck::Card& card) const {
     return std::stoi(card.rank);
 }
 
+
 int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
-    int total = 0;
-    int aceCount = 0;
+  int total = 0, aceCount = 0;
+  for (auto& c : hand) {
+    int v = getCardValue(c);
+    total += v;
+    if (c.rank == "A") aceCount++;
+  }
+  while (total > 21 && aceCount--) total -= 10;
+  return total;
+}
 
-    for (const auto& card : hand) {
-        int value = getCardValue(card);
-        if (card.rank == "A") aceCount++;
-        total += value;
-    }
 
-    while (total > 21 && aceCount > 0) {
-        total -= 10;
-        aceCount--;
-    }
+void BlackJack::playerHit() {
+    playerHand.push_back(deck.draw());
+    if (isBust(playerHand)) gameOver = true;
+}
 
-    return total;
+void BlackJack::dealerPlays() {
+    // reuse existing dealerTurn logic, then end the game
+    dealerTurn();
+    gameOver = true;
 }
 
 bool BlackJack::isBust(const std::vector<Deck::Card>& hand) const {
@@ -112,4 +118,33 @@ void BlackJack::playGame() {
     }
 
     std::cout << determineWinner() << std::endl;
+}
+
+
+const std::vector<Deck::Card>& BlackJack::getPlayerHand() const {
+    return playerHand;
+}
+
+const std::vector<Deck::Card>& BlackJack::getDealerHand() const {
+    return dealerHand;
+}
+
+int BlackJack::getPlayerScore() const {
+    return calculateHandValue(playerHand);
+}
+
+bool BlackJack::isPlayerBusted() const {
+    return isBust(playerHand);
+}
+
+bool BlackJack::isGameOver() const {
+    return gameOver;
+}
+
+std::string BlackJack::determineOutcome() const {
+    return determineWinner();
+}
+
+void BlackJack::setGameOver(bool over) {
+    gameOver = over;
 }
