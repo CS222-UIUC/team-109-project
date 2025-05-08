@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Card from './components/Card';
 
 const BlackJack = () => {
     const [playerHand, setPlayerHand] = useState([]);
@@ -6,9 +7,6 @@ const BlackJack = () => {
     const [gameState, setGameState] = useState("waiting");
     const [message, setMessage] = useState("Click Start Game to begin!");
     const [aiSuggestion, setAiSuggestion] = useState('');
-
-    // Input: array of card objects 
-    // Output: string like "K Hearts, 10 Spades
 
     // API interaction (C++ server now on port 5002)
     const BASE_URL = "http://localhost:5002";
@@ -20,9 +18,9 @@ const BlackJack = () => {
             setMessage('Starting game...');
             const response = await fetch(`${BASE_URL}/start`, {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({}),
-              });
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
@@ -45,9 +43,9 @@ const BlackJack = () => {
             setMessage('Hitting...');
             const response = await fetch(`${BASE_URL}/hit`, {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({}),
-              });
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
@@ -74,9 +72,9 @@ const BlackJack = () => {
             setMessage('Standing... Dealer plays.');
             const response = await fetch(`${BASE_URL}/stand`, {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({}),
-              });
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 
@@ -100,7 +98,7 @@ const BlackJack = () => {
             const response = await fetch(`${AI_BOT_URL}/api/bot_decision`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ playerHand }),
+                body: JSON.stringify({ playerHand }),
             });
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
@@ -116,7 +114,10 @@ const BlackJack = () => {
         }
     };
 
-
+    // Check if the game is in a terminal state
+    const isGameOver = () => {
+        return gameState !== "playing" && gameState !== "waiting";
+    };
 
     return (
         <div className="p-4 text-center bg-gray-800 text-white min-h-screen">
@@ -131,12 +132,24 @@ const BlackJack = () => {
 
             <div className="mb-6 p-4 bg-gray-700 rounded shadow">
                 <h2 className="text-xl font-semibold mb-2 text-gray-300">Dealer's Hand</h2>
-                <p className="text-lg font-mono h-8">{formatHand(dealerHand)}</p>
+                <div className="flex justify-center items-center space-x-2">
+                    {dealerHand.map((card, idx) => (
+                        <Card
+                            key={idx}
+                            card={card}
+                            hidden={gameState === 'playing' && idx > 0}
+                        />
+                    ))}
+                </div>
             </div>
 
             <div className="mb-6 p-4 bg-gray-700 rounded shadow">
                 <h2 className="text-xl font-semibold mb-2 text-gray-300">Your Hand</h2>
-                <p className="text-lg font-mono h-8">{formatHand(playerHand)}</p>
+                <div className="flex justify-center items-center space-x-2">
+                    {playerHand.map((card, idx) => (
+                        <Card key={idx} card={card} hidden={false} />
+                    ))}
+                </div>
             </div>
 
             <div className="mb-4 h-6 text-yellow-300 font-semibold">
@@ -152,11 +165,26 @@ const BlackJack = () => {
                 flexWrap: 'wrap',
                 justifyContent: 'center',
             }}>
-                {(gameState === "waiting" ||
-                    /win|bust|push/.test(gameState) ||
-                    gameState === "error") && (
-                        <button onClick={startGame} style={{
-                            backgroundColor: '#4ade80',
+                {(gameState === "waiting" || isGameOver()) && (
+                    <button onClick={startGame} style={{
+                        backgroundColor: '#4ade80',
+                        padding: '12px 24px',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        cursor: 'pointer',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        🎲 {isGameOver() ? 'Play Again' : 'Start Game'}
+                    </button>
+                )}
+                {gameState === "playing" && (
+                    <>
+                        <button onClick={hit} style={{
+                            backgroundColor: '#ef4444',
                             padding: '12px 24px',
                             border: 'none',
                             borderRadius: '8px',
@@ -165,30 +193,46 @@ const BlackJack = () => {
                             fontSize: '16px',
                             cursor: 'pointer',
                             alignItems: 'center',
+                            display: 'flex',
                             justifyContent: 'center',
                         }}>
-                            🎲 Start Game
-                        </button>
-                    )}
-                {gameState === "playing" && (
-                    <>
-                        <button
-                            onClick={hit}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow"
-                        >
-                            Hit
+                            ❤️ Hit
                         </button>
                         <button
                             onClick={stand}
-                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded shadow"
+                            style={{
+                                backgroundColor: '#3b82f6',
+                                padding: '12px 24px',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
                         >
-                            Stand
+                            ✋ Stand
                         </button>
                         <button
                             onClick={getAiHint}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded shadow"
+                            style={{
+                                backgroundColor: '#a855f7',
+                                padding: '12px 24px',
+                                border: 'none',
+                                borderRadius: '8px',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
                         >
-                            Get AI Hint
+                            💡 Get AI Hint
                         </button>
                     </>
                 )}
