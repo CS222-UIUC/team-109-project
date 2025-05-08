@@ -8,23 +8,7 @@ const BlackJack = () => {
     const [aiSuggestion, setAiSuggestion] = useState('');
 
     // Input: array of card objects 
-    // Output: string like "K Hearts, 10 Spades"
-    const formatHand = (hand) => {
-        if (!hand || hand.length === 0) {
-            return "(empty)";
-        }
-        // dealer's hidden card
-        if (gameState === 'playing' && hand === dealerHand && hand.length > 0) {
-            const firstCard = hand[0];
-            const firstCardStr = firstCard && firstCard.rank && firstCard.suit
-                ? `${firstCard.rank} ${firstCard.suit}`
-                : "(Card Error)";
-            return `${firstCardStr}, (Hidden)`;
-        }
-        return hand.map(card =>
-            (card && card.rank && card.suit) ? `${card.rank} ${card.suit}` : '(Card Error)'
-        ).join(", ");
-    };
+    // Output: string like "K Hearts, 10 Spades
 
     // API interaction (C++ server now on port 5002)
     const BASE_URL = "http://localhost:5002";
@@ -59,7 +43,7 @@ const BlackJack = () => {
         try {
             setAiSuggestion('');
             setMessage('Hitting...');
-            const response = await fetch(`${BASE_URL}/start`, {
+            const response = await fetch(`${BASE_URL}/hit`, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({}),
@@ -68,10 +52,15 @@ const BlackJack = () => {
             const data = await response.json();
 
             setPlayerHand(data.player);
+            setDealerHand(data.dealer);
             setGameState(data.gameState);
-            setMessage(data.gameState === 'player_bust'
-                ? "You busted!"
-                : "Your turn.");
+            
+            if (data.gameState === 'playing') {
+                setMessage("Your turn.");
+            } else {
+                // Game over after hit (player busted)
+                setMessage(`Game Over: ${data.gameState}`);
+            }
         } catch (error) {
             console.error("Error hitting:", error);
             setMessage(`Error hitting: ${error.message}`);
@@ -83,7 +72,7 @@ const BlackJack = () => {
         try {
             setAiSuggestion('');
             setMessage('Standing... Dealer plays.');
-            const response = await fetch(`${BASE_URL}/start`, {
+            const response = await fetch(`${BASE_URL}/stand`, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({}),
@@ -127,9 +116,18 @@ const BlackJack = () => {
         }
     };
 
+
+
     return (
         <div className="p-4 text-center bg-gray-800 text-white min-h-screen">
             <h1 className="text-3xl font-bold mb-6 text-yellow-400">Black Jack</h1>
+            
+            {/* Game Status Banner */}
+            {isGameOver() && (
+                <div className="mb-4 p-2 bg-yellow-600 text-white font-bold rounded">
+                    Game Over: {gameState}
+                </div>
+            )}
 
             <div className="mb-6 p-4 bg-gray-700 rounded shadow">
                 <h2 className="text-xl font-semibold mb-2 text-gray-300">Dealer's Hand</h2>
@@ -148,17 +146,30 @@ const BlackJack = () => {
                 {aiSuggestion}
             </div>
 
-            <div className="mt-4 space-x-3">
+            <div style={{
+                display: 'flex',
+                gap: '15px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+            }}>
                 {(gameState === "waiting" ||
-                  /win|bust|push/.test(gameState) ||
-                  gameState === "error") && (
-                    <button
-                        onClick={startGame}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded shadow"
-                    >
-                        Start Game
-                    </button>
-                )}
+                    /win|bust|push/.test(gameState) ||
+                    gameState === "error") && (
+                        <button onClick={startGame} style={{
+                            backgroundColor: '#4ade80',
+                            padding: '12px 24px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                            🎲 Start Game
+                        </button>
+                    )}
                 {gameState === "playing" && (
                     <>
                         <button
