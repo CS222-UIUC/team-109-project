@@ -19,26 +19,22 @@ int BlackJack::getCardValue(const Deck::Card& card) const {
 
 
 int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
-  int total = 0, aceCount = 0;
-  for (auto& c : hand) {
-    int v = getCardValue(c);
-    total += v;
-    if (c.rank == "A") aceCount++;
-  }
-  while (total > 21 && aceCount--) total -= 10;
-  return total;
-}
+    int total = 0;
+    int aceCount = 0;
+    std::string choice;
 
+    for (const auto& card : hand) {
+        int value = getCardValue(card);
+        if (card.rank == "A") aceCount++;
+        total += value;
+    }
 
-void BlackJack::playerHit() {
-    playerHand.push_back(deck.draw());
-    if (isBust(playerHand)) gameOver = true;
-}
+    while (total > 21 && aceCount > 0) {
+        total -= 10;
+        aceCount--;
+    }
 
-void BlackJack::dealerPlays() {
-    // reuse existing dealerTurn logic, then end the game
-    dealerTurn();
-    gameOver = true;
+    return total;
 }
 
 bool BlackJack::isBust(const std::vector<Deck::Card>& hand) const {
@@ -95,6 +91,19 @@ void BlackJack::dealerTurn() {
     }
 }
 
+std::string BlackJack::determineWinner(const std::vector<Deck::Card>& hand) const {
+    int playerScore = calculateHandValue(hand);
+    int dealerScore = calculateHandValue(dealerHand);
+
+    if (playerScore > 21) return "Dealer wins!";
+    if (dealerScore > 21) return "Player wins!";
+    if (playerScore > dealerScore) return "Player wins!";
+    if (dealerScore > playerScore) return "Dealer wins!";
+    return "Push (tie)!";
+}
+
+
+
 std::string BlackJack::determineWinner() const {
     int playerScore = calculateHandValue(playerHand);
     int dealerScore = calculateHandValue(dealerHand);
@@ -106,45 +115,61 @@ std::string BlackJack::determineWinner() const {
     return "Push (tie)!";
 }
 
+//if first two cards value is same
+bool BlackJack::canSplit() const {
+    return playerHand.size() == 2 && getCardValue(playerHand[0]) == getCardValue(playerHand[1]);
+}
+
+void BlackJack::split() {
+    std::cout << "Splitting hand...\n";
+    playerHands.clear();
+
+    // Create two new hands
+    std::vector<Deck::Card> hand1 = {playerHand[0], deck.draw()};
+    std::vector<Deck::Card> hand2 = {playerHand[1], deck.draw()};
+
+    playerHands.push_back(hand1);
+    playerHands.push_back(hand2);
+}
+
+
+
 void BlackJack::playGame() {
     reset();
     dealInitialCards();
 
     std::cout << "Dealer show: " << dealerHand[0].Value_Card() << " | ?" << std::endl;
-    playerTurn();
+
+    // Offer split if possible
+    if (canSplit()) {
+        std::string choice;
+        std::cout << "Do you want to split? (y/n): ";
+        std::cin >> choice;
+        if (choice == "y") {
+            split();
+            for (size_t i = 0; i < playerHands.size(); ++i) {
+                std::cout << "\n-Playing hand " << i + 1 << " -\n";
+                playerHand = playerHands[i];  // temp load first hand
+                playerTurn();
+                playerHands[i] = playerHand;  // save back both hand
+            }
+        } else {
+            playerTurn();
+        }
+    } else {
+        playerTurn();
+    }
 
     if (!isBust(playerHand)) {
         dealerTurn();
     }
 
-    std::cout << determineWinner() << std::endl;
-}
-
-
-const std::vector<Deck::Card>& BlackJack::getPlayerHand() const {
-    return playerHand;
-}
-
-const std::vector<Deck::Card>& BlackJack::getDealerHand() const {
-    return dealerHand;
-}
-
-int BlackJack::getPlayerScore() const {
-    return calculateHandValue(playerHand);
-}
-
-bool BlackJack::isPlayerBusted() const {
-    return isBust(playerHand);
-}
-
-bool BlackJack::isGameOver() const {
-    return gameOver;
-}
-
-std::string BlackJack::determineOutcome() const {
-    return determineWinner();
-}
-
-void BlackJack::setGameOver(bool over) {
-    gameOver = over;
+    if (!playerHands.empty()) {
+        for (size_t i = 0; i < playerHands.size(); ++i) {
+            std::cout << "\nResult for hand " << i + 1 << ": ";
+            std::cout << determineWinner(playerHands[i]) << std::endl;
+        }
+    } else {
+        std::cout << determineWinner() << std::endl;
+    }
 }
