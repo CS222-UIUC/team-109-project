@@ -18,6 +18,7 @@ int BlackJack::getCardValue(const Deck::Card& card) const {
 }
 
 
+
 int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
     int total = 0;
     int aceCount = 0;
@@ -124,7 +125,7 @@ void BlackJack::split() {
     std::cout << "Splitting hand...\n";
     playerHands.clear();
 
-    // Create two new hands
+    // Create two hands
     std::vector<Deck::Card> hand1 = {playerHand[0], deck.draw()};
     std::vector<Deck::Card> hand2 = {playerHand[1], deck.draw()};
 
