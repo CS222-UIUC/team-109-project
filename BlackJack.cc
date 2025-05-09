@@ -19,6 +19,7 @@ int BlackJack::getCardValue(const Deck::Card& card) const {
 
 
 
+
 int BlackJack::calculateHandValue(const std::vector<Deck::Card>& hand) const {
     int total = 0;
     int aceCount = 0;
