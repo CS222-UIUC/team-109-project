@@ -5,8 +5,6 @@
 
 //non joker constructor
 Deck::Card::Card(const std::string r, const  std::string s) : rank(r), suit(s) {}
-//joker constructor
-
 
 std::string Deck::Card::Value_Card() const {
 	return  (rank + ' ' +suit);
