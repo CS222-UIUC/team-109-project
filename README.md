@@ -1,103 +1,104 @@
-# team-109-project
+# Team 109: HunchAI BlackJack
+A C++ adaptation of the classic six-deck Blackjack game featuring an AI opponent that combines statistical analysis with intuitive decisions.
 
-Features
-Real-time AI predictor for card games
+# Team 109 Members
 
-Technologies Used
-Programming Language: Python
-
-Computer Vision Library: OpenCV
-
-Frontend: python, react app, tensorflow
-
-Backend: C++
-
-
-Contributors
-# Group members and their roles
-advtydv Advait Yadav
-UI developer for blackjack & HunchAI
-
-numairh2 Numair Hajyani
-Ui developer for blackjack
-
-affanf2 Affan
-Backend developer for BlackJack and UI
-
-aelayy3 Amr Elayyan
-Backend developer for BlackJack and Deck
+| Name | Role | Contributions |
+|------|------|--------------|
+| Affan Faisal | C++ Game Server Developer | Core game logic implementation |
+| Advait Yadav | Python AI Bot & Static Server Developer | Monte Carlo simulation, Flask server |
+| Numair Hajyani | Frontend Developer | React UI, Tailwind CSS implementation |
+| Amr Elayyan | C++ Game Server Developer | Game state management |
 
 # Project summary
-Enthusiasts of card games are more believers in their hunch than what the odds of the game present. This cool new game will test your hunch against that of an AI. The Ai will be able to run odds for every move but with a little catch, the AI will be trained to make unusual decisions based on deep learning of past Black Jack games or simply the hunchAI.
-we developed a Blackjack game in C++ and integrated into React App. We built an Ai using python and tensorflow to train and make decisions based on game outcomes. 
+HunchAI BlackJack is a modern implementation of the classic casino game with a unique twist. Unlike traditional Blackjack AI opponents that rely solely on statistical optimization, our system incorporates a "Hunch Module" that occasionally makes gut-feel plays instead of the mathematically optimal move.
 
-# Getting Started with Create React App
+Key features include:
+Standard six-deck Blackjack gameplay
+Web-based user interface
+AI opponent with dual decision-making layers:
+- **Statistical Engine:** Calculates mathematically optimal plays based on deck composition
+- **Hunch Module:** Introduces deviations from purely statistical decisions
+HTTP server for web UI connectivity
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Why HunchAI BlackJack?
 
-## Available Scripts
+Our project was motivated by several goals:
+- Combine our passions for game design and artificial intelligence
+- Create an unpredictable opponent that mimics human decision-making
+- Study player responses to unconventional AI moves
+- Enhance our skills in C++, REST API design, and machine learning integration
 
-In the project directory, you can run:
+## Technical Architecture
 
-### `npm start`
+The application consists of four main components:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1. Frontend (React)
+- Serves as the user interface where players interact with the game
+- Built with React, Tailwind CSS, and Framer Motion
+- Provides intuitive controls for game actions (hit, stand, etc.)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 2. Static Server (Python/Flask)
+- Hosts and delivers the compiled React application
+- Connects the AI Bot to the frontend
+- Manages HTTP requests and responses between components
 
-### `npm test`
+### 3. C++ Game Server
+- Implements the core Blackjack logic
+- Maintains game state
+- Processes player actions and determines outcomes
+- Uses the nlohmann/json library for API communication
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 4. Python AI Bot Server
+- Runs Monte Carlo simulations to suggest optimal moves
+- Maintains a memory system that records games in each session to learn from past decisions
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Installation Instructions
+**Prerequisites**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+C++17 compatible compiler (GCC 8+, Clang 7+, or MSVC 19.14+)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Python 3.8+
 
-### `npm run eject`
+Node.js 14+
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+npm 6+
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+**Clone the Repository**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+git clone https://github.com/CS222-UIUC/team-109-project
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+**Install C++ Dependencies**
 
-## Learn More
+We use the following libraries:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+httplib - HTTP server
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+nlohmann/json - JSON handling
 
-### Code Splitting
+### Run the Servers
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+In three separate terminals:
 
-### Analyzing the Bundle Size
+**Terminal 1 (C++ Game Server):**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Build c++ server using make
 
-### Making a Progressive Web App
+./blackjack_server
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**Terminal 2 (Python AI Bot Server):**
 
-### Advanced Configuration
+python server.py
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+**Terminal 3 (Frontend Static Server):**
 
-### Deployment
+cd blackjack-ui
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+npm start
 
-### `npm run build` fails to minify
+### **Play the Game**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Open your browser and navigate to: 
+
+http://localhost:3000
